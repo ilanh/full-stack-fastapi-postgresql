@@ -1,7 +1,8 @@
 import json
 from collections import OrderedDict
-import oyaml as yaml
 from pathlib import Path
+
+import oyaml as yaml
 
 cookie_path = Path("./cookiecutter.json")
 out_path = Path("./{{cookiecutter.project_slug}}/cookiecutter-config-file.yml")

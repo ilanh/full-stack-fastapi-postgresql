@@ -4,10 +4,9 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import emails
+from app.core.config import settings
 from emails.template import JinjaTemplate
 from jose import jwt
-
-from app.core.config import settings
 
 
 def send_email(

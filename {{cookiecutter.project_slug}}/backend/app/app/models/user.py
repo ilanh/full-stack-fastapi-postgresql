@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING
 
+from app.db.base_class import Base
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import relationship
-
-from app.db.base_class import Base
 
 if TYPE_CHECKING:
     from .item import Item  # noqa: F401

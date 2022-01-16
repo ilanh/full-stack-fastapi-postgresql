@@ -1,9 +1,8 @@
-from sqlalchemy.orm import Session
-
 from app import crud
 from app.schemas.item import ItemCreate, ItemUpdate
 from app.tests.utils.user import create_random_user
 from app.tests.utils.utils import random_lower_string
+from sqlalchemy.orm import Session
 
 
 def test_create_item(db: Session) -> None:
