@@ -134,6 +134,108 @@ This stack can be adjusted and used with several deployment options that are com
 
 Please refer to <a href="https://dockerswarm.rocks" target="_blank">DockerSwarm.rocks</a> to see how to deploy such a cluster in 20 minutes.
 
+## How to debug
+
+### Backend
+
+An easiest way to do that is to launch your service in docker container along with postgre and all its dependencies to get rid of dependencies installation problems so if you'd like to debug backend separately (like for adding your custom routes) you'll need to do following steps to get things work
+
+
+1. Put that handy stack.yml somewhere
+```yml
+version: '3.1'
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_SERVER: example
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: example
+    ports:
+      - 5432:5432
+    networks:
+      - default
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - default
+
+  queue:
+    image: rabbitmq:3
+
+  backend:
+    image: backend
+    ports:
+      - 10088:80
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_USER=example
+      - POSTGRES_PASSWORD=example
+      - POSTGRES_SERVER=db:5432
+      - POSTGRES_DB=example
+    build:
+      context: .
+      dockerfile: backend.dockerfile
+    networks:
+      - default
+
+  worker:
+    image: worker
+    depends_on:
+      - db
+      - queue
+#    env_file:
+#      - .env
+    environment:
+      - SERVER_NAME=127.0.0.1:10088
+      - SERVER_HOST=http://127.0.0.1:10088
+      - SMTP_HOST=mail.overbooru.world
+    build:
+      context: .
+      dockerfile: celeryworker.dockerfile
+```
+
+2. Next go to backend/app/app/core/config.py, checkout all settings you'll need to pass and put them right into previous yml's backend section
+should be something like
+
+```yml
+backend:
+    image: backend
+    ports:
+      - 10088:80
+    depends_on:
+      - db
+    environment:
+      - SERVER_NAME='',
+      - SERVER_HOST=http://127.0.0.1:10088,
+      - PROJECT_NAME=CookieBack,
+      ...
+      - POSTGRES_USER=example
+      - POSTGRES_PASSWORD=example
+      - POSTGRES_SERVER=db:5432
+      - POSTGRES_DB=example
+      ...
+    build:
+      context: .
+      dockerfile: backend.dockerfile
+    networks:
+      - default
+```
+
+3. Run
+
+> docker-compose -f stack.yml up --force-recreate --build
+
+4. Check if swagger there http://0.0.0.0:10088/docs - backend must be running.
+
 ## More details
 
 After using this generator, your new project (the directory created) will contain an extensive `README.md` with instructions for development, deployment, etc. You can pre-read [the project `README.md` template here too](./{{cookiecutter.project_slug}}/README.md).
