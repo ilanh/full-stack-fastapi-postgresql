@@ -3,6 +3,7 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr
 from app.schemas import Item
 
+
 # Shared properties
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
